@@ -2,13 +2,73 @@ const express = require("express");
 const body_parser = require("body-parser");
 // import database
 const sequelize = require("./config/Database");
-
+const crypto = require("crypto");
+const multer = require("multer");
 // create admin helper method
 const create_admin = require("./utils/admin").create_admin;
 const app = express();
-
 // importing routes
 const adminRoutes = require("./routes/admin");
+const swaggerUi = require("swagger-ui-express");
+const swaggerDocument = require("./swagger.json");
+
+let file_folder;
+const files_store = multer.diskStorage({
+  destination: function (req, file, cb) {
+    if (
+      file.mimetype === "image/png" ||
+      file.mimetype === "image/jpg" ||
+      file.mimetype === "image/jpeg" ||
+      file.mimetype === "image/webp"
+    ) {
+      file_folder = "uploads/images";
+    }
+    cb(null, file_folder);
+  },
+  filename: function (req, file, cb) {
+    const date = new Date();
+    cb(
+      null,
+      crypto.createHash("md5").update(file.originalname).digest("hex") +
+        "-" +
+        date.getFullYear() +
+        "-" +
+        date.getMonth() +
+        "-" +
+        date.getDate() +
+        "-" +
+        date.getHours() +
+        "-" +
+        date.getMinutes() +
+        "-" +
+        date.getSeconds() +
+        file.originalname.substring(
+          file.mimetype === "image/jpeg" || file.mimetype === "image/webp"
+            ? file.originalname.length - 5
+            : file.originalname.length - 4,
+          file.originalname.length
+        )
+    );
+  },
+});
+
+const files_filter = (req, file, cb) => {
+  if (
+    file.mimetype === "image/png" ||
+    file.mimetype === "image/jpg" ||
+    file.mimetype === "image/jpeg" ||
+    file.mimetype === "image/webp"
+  ) {
+    cb(null, true);
+  } else {
+    cb(null, false);
+  }
+};
+
+const uploads = multer({
+  storage: files_store,
+  fileFilter: files_filter,
+});
 
 // import Models
 // const Admin = require('./models/Admin')
@@ -40,6 +100,8 @@ const adminRoutes = require("./routes/admin");
 // parsing requests
 app.use(body_parser.json());
 app.use(body_parser.urlencoded());
+// for now we have juste the images
+app.use(uploads.array("uploads", 1));
 
 // setting headers
 app.use((req, res, next) => {
@@ -48,9 +110,6 @@ app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization"); // pour ajouter un Content-Type et une autorization
   next();
 });
-// app.use("/", (req, res, next) => {
-//   res.send("hey from app.js");
-// });
 
 // using routes middelwares
 app.use("/admin", adminRoutes);
@@ -68,6 +127,9 @@ app.use((error, req, res, next) => {
 create_admin();
 
 // Database Relations
+
+// swagger config
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 sequelize
   // .sync({force : true})

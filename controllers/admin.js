@@ -3,7 +3,7 @@ const Etablissement = require("../models/Etablissement");
 const Client = require("../models/Client");
 const Signataire = require("../models/Signataire");
 const Offre = require("../models/Offre");
-const Admin = require("../models/admin");
+const Admin = require("../models/Admin");
 const TypePaiment = require("../models/TypePaiment");
 const Coupon = require("../models/Coupon");
 
@@ -18,7 +18,7 @@ const transporter = nodemailer.createTransport(
     },
   })
 );
-
+// test
 const error_handler = (err, next) => {
   if (!err.status_code) {
     err.status_code = 500;
@@ -111,8 +111,8 @@ exports.create_client = (req, res, next) => {
   const pseudo = req.body.pseudo;
   const mot_de_passe = req.body.mot_de_passe;
   const nom_etablissement = req.body.nom_etablissement;
+  const image = req.files[0]; 
   let id_etablissement, new_client;
-
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     const error = new Error(errors.array()[0].msg);
@@ -199,6 +199,7 @@ exports.create_client = (req, res, next) => {
         pseudo: pseudo,
         adresse: adresse,
         id_etablissement: id_etablissement,
+        url_photo : image.path
       });
       // saving the new instance
       return new_client.save();
@@ -232,7 +233,10 @@ exports.create_signataire = (req, res, next) => {
   const adresse = req.body.adresse;
   const pseudo = req.body.pseudo;
   const mot_de_passe = req.body.mot_de_passe;
-  const nom_client = req.body.nom_client;
+  const info_client = req.body.client;
+  const [nom_client,prenom_client] = info_client.split(" ")
+  console.log(nom_client, prenom_client)
+
   let client, new_signataire;
   // verifying validation errors
   const errors = validationResult(req);
@@ -436,6 +440,7 @@ exports.create_coupon = (req, res, next) => {
     .catch((err) => error_handler(err, next));
 };
 
+
 exports.etablissement = (req, res, next) => {
   const id_etablissement = req.params.id_etablissement;
   Etablissement.findByPk(id_etablissement)
@@ -477,7 +482,7 @@ exports.signataire = (req, res, next) => {
 };
 exports.offre = (req, res, next) => {
   const if_offre = req.params.id_offre;
-  
+
   Offre.findByPk(if_offre)
     .then((offre) => {
       if (!offre) {
@@ -502,6 +507,8 @@ exports.coupon = (req, res, next) => {
     })
     .catch((err) => error_handler(err, next));
 };
+
+
 
 exports.etablissements = async (req, res, next) => {
   try {
@@ -543,7 +550,7 @@ exports.offres = async (req, res, next) => {
     error_handler(err, next);
   }
 };
-exports.update_client = async (req, res, next) => {
+exports.update_etablissement = (req, res, next) => {
   const id_etablissement = req.params.id_etablissement;
   const nom = req.body.nom;
   const adresse = req.body.adresse;
@@ -554,12 +561,15 @@ exports.update_client = async (req, res, next) => {
   const NAF = req.body.NAF;
   const url_photo = req.body.url_photo;
   // we can add the offre
+
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    // giving the first error message in error message
+    // giving the first error message
+    console.log(errors.array());
     const error = new Error(errors.array()[0].msg);
     error.status_code = 402;
     error.data = errors.array;
+    console.log(error);
     throw error;
   }
   Etablissement.findByPk(id_etablissement)
@@ -569,6 +579,7 @@ exports.update_client = async (req, res, next) => {
         error.status_code = 404;
         throw error;
       }
+      // updating the fields
       etablissement.nom = nom;
       etablissement.adresse = adresse;
       etablissement.NIF = NIF;
@@ -586,4 +597,226 @@ exports.update_client = async (req, res, next) => {
       });
     })
     .catch((err) => error_handler(err, next));
+};
+exports.update_client = async (req, res, next) => {
+  const id_client = req.params.id_client;
+  const nom = req.body.nom;
+  const prenom = req.body.prenom;
+  const email = req.body.email;
+  const adresse = req.body.adresse;
+  const pseudo = req.body.pseudo;
+  const mot_de_passe = req.body.mot_de_passe;
+  const nom_etablissement = req.body.nom_etablissement;
+    email_existe = false,
+    pseudo_existe = false;
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      const error = new Error(errors.array()[0].msg);
+      error.status_code = 402;
+      throw error;
+    }
+    const fetched_client = await Client.findByPk(id_client);
+    if (!fetched_client) {
+      const error = new Error("Le client n'existe pas.");
+      error.status_code = 404;
+      throw error;
+    }
+    // updating the email
+    if (fetched_client.email !== email) {
+      // chking if the email existe
+      // cheking in the admin table
+      const admin_emails = await Admin.findOne({ where: { email: email } });
+      if (admin_emails) {
+        email_existe = true;
+      } else {
+        // cheking in the client table
+        const client_emails = await Client.findOne({ where: { email: email } });
+        if (client_emails && !email_existe) {
+          email_existe = true;
+        } else if (!email_existe) {
+          const signataire_emails = await Signataire.findOne({
+            where: { email: email },
+          });
+          if (signataire_emails) {
+            email_existe = true;
+          }
+        }
+      }
+      if (email_existe) {
+        const error = new Error("L'email existe deja.");
+        error.status_code = 402;
+        throw error;
+      } else {
+        fetched_client.email = email;
+      }
+    }
+    if (fetched_client.pseudo !== pseudo) {
+      // cheking if the username existe
+      const admin_pseudo = await Admin.findOne({ where: { pseudo: pseudo } });
+      if (admin_pseudo) {
+        pseudo_existe = true;
+      } else {
+        const client_pseudo = await Client.findOne({
+          where: { pseudo: pseudo },
+        });
+        if (client_pseudo && !pseudo_existe) {
+          pseudo_existe = true;
+        } else if (!pseudo_existe) {
+          const signataire_pseudo = await Signataire.findOne({
+            where: { pseudo: pseudo },
+          });
+          if (signataire_pseudo) {
+            pseudo_existe = true;
+          }
+        }
+      }
+      if (pseudo_existe) {
+        const error = new Error("Le pseudo existe deja.");
+        error.status_code = 402;
+        throw error;
+      } else {
+        fetched_client.pseudo = pseudo;
+      }
+    }
+    const password_matches = await bcrypt.compare(
+      mot_de_passe,
+      fetched_client.mot_de_passe
+    );
+    if (!password_matches) {
+      const new_password = await bcrypt.hash(mot_de_passe, 12);
+      fetched_client.mot_de_passe = new_password;
+    }
+    // cheking if the etablissment existe
+    const etablissement = await Etablissement.findOne({
+      where: { nom: nom_etablissement },
+    });
+    if (!etablissement) {
+      const error = new Error("L'etablissement n'existe pas.");
+      error.status_code = 404;
+      throw error;
+    }
+    fetched_client.id_etablissement = etablissement.dataValues.id_etablissement;
+    fetched_client.nom = nom;
+    fetched_client.prenom = prenom;
+    fetched_client.adresse = adresse;
+    const saved_client = await fetched_client.save();
+    res.status(200).json({
+      updated_client: saved_client,
+    });
+  } catch (err) {
+    error_handler(err, next);
+  }
+};
+// pas obliger pour le 'admin c plus tot pour le client
+exports.update_signataire = async (req, res, next) => {
+  const id_signataire = req.params.id_signataire;
+  const nom = req.body.nom;
+  const prenom = req.body.prenom;
+  const email = req.body.email;
+  const adresse = req.body.adresse;
+  const pseudo = req.body.pseudo;
+  const mot_de_passe = req.body.mot_de_passe;
+  const client = req.body.client;
+  const [nom_client,prenom_client] = client.split(" ")
+    email_existe = false,
+    pseudo_existe = false;
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      const error = new Error(errors.array()[0].msg);
+      error.status_code = 402;
+      throw error;
+    }
+    const fetched_signataire = await Signataire.findByPk(id_signataire);
+    if (!fetched_signataire) {
+      const error = new Error("Le signataire n'existe pas.");
+      error.status_code = 404;
+      throw error;
+    }
+    // updating the email
+    if (fetched_signataire.email !== email) {
+      // chking if the email existe
+      // cheking in the admin table
+      const admin_emails = await Admin.findOne({ where: { email: email } });
+      if (admin_emails) {
+        email_existe = true;
+      } else {
+        // cheking in the client table
+        const client_emails = await Client.findOne({ where: { email: email } });
+        if (client_emails && !email_existe) {
+          email_existe = true;
+        } else if (!email_existe) {
+          const signataire_emails = await Signataire.findOne({
+            where: { email: email },
+          });
+          if (signataire_emails) {
+            email_existe = true;
+          }
+        }
+      }
+      if (email_existe) {
+        const error = new Error("L'email existe deja.");
+        error.status_code = 402;
+        throw error;
+      } else {
+        fetched_signataire.email = email;
+      }
+    }
+    if (fetched_signataire.pseudo !== pseudo) {
+      // cheking if the username existe
+      const admin_pseudo = await Admin.findOne({ where: { pseudo: pseudo } });
+      if (admin_pseudo) {
+        pseudo_existe = true;
+      } else {
+        const client_pseudo = await Client.findOne({
+          where: { pseudo: pseudo },
+        });
+        if (client_pseudo && !pseudo_existe) {
+          pseudo_existe = true;
+        } else if (!pseudo_existe) {
+          const signataire_pseudo = await Signataire.findOne({
+            where: { pseudo: pseudo },
+          });
+          if (signataire_pseudo) {
+            pseudo_existe = true;
+          }
+        }
+      }
+      if (pseudo_existe) {
+        const error = new Error("Le pseudo existe deja.");
+        error.status_code = 402;
+        throw error;
+      } else {
+        fetched_signataire.pseudo = pseudo;
+      }
+    }
+    const password_matches = await bcrypt.compare(
+      mot_de_passe,
+      fetched_signataire.mot_de_passe
+    );
+    if (!password_matches) {
+      const new_password = await bcrypt.hash(mot_de_passe, 12);
+      fetched_signataire.mot_de_passe = new_password;
+    }
+    // cheking if the etablissment existe
+    const client = await Client.findOne({
+      where: { nom: nom_client, prenom : prenom_client},
+    });
+    if (!client) {
+      const error = new Error("Le client n'existe pas.");
+      error.status_code = 404;
+      throw error;
+    }
+    fetched_signataire.id_client = client.dataValues.id_client;
+    fetched_signataire.nom = nom;
+    fetched_signataire.prenom = prenom;
+    fetched_signataire.adresse = adresse;
+    const saved_signataire = await fetched_signataire.save();
+    res.status(200).json({
+      updated_signataire: saved_signataire,
+    });
+  } catch (err) {
+    error_handler(err, next);
+  }
 };

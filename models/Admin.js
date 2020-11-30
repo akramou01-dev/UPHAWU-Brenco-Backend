@@ -21,7 +21,7 @@ const Admin = sequelize.define(
       comment: "null",
     },
     pseudo: {
-      type: Sequelize.STRING(10),
+      type: Sequelize.STRING(45),
       allowNull: true,
       comment: "null",
     },

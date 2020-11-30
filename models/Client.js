@@ -21,7 +21,7 @@ const Client = sequelize.define(
       comment: "null",
     },
     pseudo: {
-      type: Sequelize.STRING(10),
+      type: Sequelize.STRING(45),
       allowNull: true,
       comment: "null",
     },
@@ -60,6 +60,11 @@ const Client = sequelize.define(
       type: Sequelize.STRING(45),
       allowNull: true,
       comment: "null",
+    },
+    url_photo : {
+      type : Sequelize.STRING(45),
+      comment : "null", 
+      allowNull : true,
     },
     id_etablissement: {
       type: Sequelize.INTEGER.UNSIGNED,

@@ -20,6 +20,11 @@ const Offre = sequelize.define(
       allowNull: false,
       comment: "null",
     },
+    date_debut_utilisation: {
+      type: Sequelize.DATE,
+      allowNull: true,
+      comment: "null",
+    },
     durée: {
       type: Sequelize.INTEGER,
       allowNull: true,

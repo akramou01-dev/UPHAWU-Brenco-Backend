@@ -1,0 +1,111 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "version": "1.0.0",
+        "title": "Uphawu project",
+        "description": "Generator of QRCodes",
+        "license": {
+            "name": "MIT",
+            "url": "https://opensource.org/licenses/MIT"
+        }
+    },
+    "host": "localhost:5000",
+    "basePath": "/",
+    "tags": [
+        {
+            "name": "Uphawu",
+            "description": "UPHAWU "
+        }
+    ],
+    "schemes": [
+        "http"
+    ],
+    "consumes": [
+        "application/json"
+    ],
+    "produces": [
+        "application/json"
+    ],
+    "paths": {
+        "/admin/etablissement": {
+            "get": {
+                "tags": [
+                    "Etablissement"
+                ],
+                "summary": "Get all Etablissements in system",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Etablissements"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/": {
+            "post": {
+                "tags": [
+                    "Etablissement"
+                ],
+                "summary": "Create new etablissement",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Etablissements"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "user",
+                        "in": "body",
+                        "description": "User that we want to create",
+                        "schema": {
+                            "$ref": "#/definitions/User"
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "definitions": {
+        "Etablissement": {
+            "required": [
+                "id_etablissement",
+                "nom",
+                "RC",
+                "RS",
+                "NIF",
+                "NAF",
+                "NIS",
+                "url_logo"
+            ],
+            "properties": {
+                "id_etablissement": {
+                    "type": "integer",
+                    "uniqueItems": true
+                },
+                "nom": {
+                    "type": "string"
+                },
+                "RC": {
+                    "type": "string"
+                },
+                "RS": {
+                    "type": "string"
+                },
+                "NIF": {
+                    "type": "string"
+                },
+                "NAF": {
+                    "type": "string"
+                },
+                "NIS": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}
