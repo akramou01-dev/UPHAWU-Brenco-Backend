@@ -1,0 +1,28 @@
+{
+    "development": {
+        "username": "root",
+        "password": "Mot de passe 12",
+        "port": 3306,
+        "database": "uphawu_dev",
+        "host": "127.0.0.1",
+        "dialect": "mysql",
+        "logging": false
+    },
+    "test": {
+        "username": "root",
+        "password": null,
+        "database": "uphawu_test",
+        "host": "127.0.0.1",
+        "dialect": "mysql",
+        "use_env_variable": "DATABASE_URL"
+    },
+    "production": {
+        "username": "root",
+        "password": null,
+        "database": "uphawu",
+        "host": "127.0.0.1",
+        "dialect": "mysql",
+        "use_env_variable": "DATABASE_URL",
+        "logging": false
+    }
+}

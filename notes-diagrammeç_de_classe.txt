@@ -1,0 +1,39 @@
+ajouter table type_paiment
+    
+ajouter table contrat 
+
+AJOUTER TABLE commande 
+
+ajouter table facture
+
+
+ajouter a la table user 
+    email 
+    mot_de_passe_token 
+    mot_de_passe_token_expiration 
+    validate_email_token 
+    mot_de_passe, 
+    
+table client
+table admin 
+
+ajouter table type_tere
+
+table type_agriculture 
+
+
+table type_irrigation 
+    id_type_tere 
+    id_type_agriculture
+    
+table irrigation
+    id_zone 
+    data_irrigation 
+
+ajouter a la table zona : nbr_irrigation_rester 
+
+table robinet 
+    id_zone 
+    id_pompe 
+
+ajouter une table humidité 
