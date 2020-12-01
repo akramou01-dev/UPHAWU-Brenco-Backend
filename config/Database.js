@@ -1,5 +1,5 @@
 const Sequelize = require("sequelize");
-const env ="development";
+const env = "development";
 // extracting database configuration from config.json
 const config = require("./config.json")[env];
 
