@@ -100,7 +100,7 @@
                 }
             }
         },
-        "/admin/atablissement/{id_etablissement}": {
+        "/admin/etablissement/{id_etablissement}": {
             "get": {
                 "tags": [
                     "Etablissement"
