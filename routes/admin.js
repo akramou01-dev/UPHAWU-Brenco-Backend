@@ -48,6 +48,13 @@ router.post(
       .isEmpty()
       .withMessage("Le nom ne doit pas etre vide.")
       .trim(),
+    body("durée")
+      .not()
+      .isEmpty()
+      .withMessage("La duée ne doit pas etre vide.")
+      .isNumeric()
+      .withMessage("La durée doit étre un entier.")
+      .trim(),
     body("nbr_QR_code")
       .not()
       .isEmpty()

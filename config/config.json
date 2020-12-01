@@ -1,4 +1,13 @@
 {
+    "development-local": {
+        "username": "root",
+        "password": "Mot de passe 12",
+        "port": 3306,
+        "database": "uphawu_dev",
+        "host": "127.0.0.1",
+        "dialect": "mysql",
+        "logging": false
+    },
     "development": {
         "username": "sql2379399",
         "password": "tU5%pF1*",

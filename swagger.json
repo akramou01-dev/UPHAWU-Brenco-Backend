@@ -9,12 +9,28 @@
             "url": "https://opensource.org/licenses/MIT"
         }
     },
-    "host": "localhost:5000",
+    "host": "https://uphawu-brenco.herokuapp.com/",
     "basePath": "/",
     "tags": [
         {
-            "name": "Uphawu",
-            "description": "UPHAWU "
+            "name": "Etablissement",
+            "description": "Tous sur l'etablissement "
+        },
+        {
+            "name": "Client",
+            "description": "Les différents endpoits de la gestion des clients."
+        },
+        {
+            "name": "Signataire",
+            "description": "Signataire endpoints "
+        },
+        {
+            "name": "Offre",
+            "description": "Offre endpoints"
+        },
+        {
+            "name": "Coupon",
+            "description": "Coupons"
         }
     ],
     "schemes": [
@@ -28,53 +44,699 @@
     ],
     "paths": {
         "/admin/etablissement": {
-            "get": {
+            "post": {
                 "tags": [
                     "Etablissement"
                 ],
-                "summary": "Get all Etablissements in system",
+                "summary": "Create new etbalissement.",
+                "description": "",
+                "operationId": "addEtablissement",
+                "consumes": "application/json",
+                "produces": "application/json",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "request body",
+                        "description": "Request fields",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Etablissement"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/Etablissements"
+                            "$ref": "#/definitions/Etablissement"
+                        }
+                    },
+                    "402": {
+                        "description": "Validation errors"
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "Etablissement"
+                ],
+                "summary": "get all etablissements",
+                "description": "",
+                "operationId": "getAllEtablissement",
+                "consumes": "application/json",
+                "produces": "application/json",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Etablissement",
+                                "id_etab": "string"
+                            }
                         }
                     }
                 }
             }
         },
-        "/admin/": {
-            "post": {
+        "/admin/atablissement/{id_etablissement}": {
+            "get": {
                 "tags": [
                     "Etablissement"
                 ],
-                "summary": "Create new etablissement",
+                "summary": "Get one etablissement",
+                "description": "",
+                "operationId": "getOneEtablissement",
+                "parameters": [
+                    {
+                        "name": "id_etablissement",
+                        "in": "path",
+                        "description": "ID of the etablissement to return",
+                        "type": "integer",
+                        "fomrat": "int64"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/Etablissements"
+                            "$ref": "#/definitions/Etablissement"
                         }
+                    },
+                    "404": {
+                        "description": "Etablissement not found"
                     }
-                },
+                }
+            },
+            "put": {
+                "tags": [
+                    "Etablissement"
+                ],
+                "summary": "update etablissement",
+                "description": "",
+                "operationId": "updateEtablissement",
                 "parameters": [
                     {
-                        "name": "user",
+                        "name": "id_etablissement",
+                        "in": "path",
+                        "description": "ID of the etablissement to update",
+                        "type": "integer",
+                        "fomrat": "int64"
+                    },
+                    {
                         "in": "body",
-                        "description": "User that we want to create",
+                        "name": "body",
+                        "description": "Request fields",
+                        "required": true,
                         "schema": {
-                            "$ref": "#/definitions/User"
+                            "$ref": "#/definitions/Etablissement"
                         }
                     }
-                ]
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Etablissement"
+                        }
+                    },
+                    "404": {
+                        "description": "Etablissement not found"
+                    },
+                    "402": {
+                        "description": "Input validation error"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Etablissement"
+                ],
+                "summary": "delete etablissement (not implemented yet)",
+                "description": "",
+                "operationId": "deleteEtablissement",
+                "parameters": [
+                    {
+                        "name": "id_etablissement",
+                        "in": "path",
+                        "description": "ID of the etablissement to delete",
+                        "type": "integer",
+                        "fomrat": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "establissement successfully deleted"
+                    },
+                    "404": {
+                        "description": "Etablissement not found"
+                    }
+                }
+            }
+        },
+        "/admin/client": {
+            "post": {
+                "tags": [
+                    "Client"
+                ],
+                "summary": "Create new client.",
+                "description": "",
+                "operationId": "addClient",
+                "consumes": "application/json",
+                "produces": "application/json",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "Request fields",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Client"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Client"
+                        }
+                    },
+                    "402": {
+                        "description": "Inputs validation errors"
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "Client"
+                ],
+                "summary": "Get all clients",
+                "description": "",
+                "operationId": "getAllClients",
+                "consumes": "application/json",
+                "produces": "application/json",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Client"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/client/{id_client}": {
+            "get": {
+                "tags": [
+                    "Client"
+                ],
+                "summary": "Get one client",
+                "description": "",
+                "operationId": "getOneClient",
+                "parameters": [
+                    {
+                        "name": "id_client",
+                        "in": "path",
+                        "description": "ID of the client to return",
+                        "type": "integer",
+                        "fomrat": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Client"
+                        }
+                    },
+                    "404": {
+                        "description": "Client not found"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Client"
+                ],
+                "summary": "update client",
+                "description": "",
+                "operationId": "updateClient",
+                "parameters": [
+                    {
+                        "name": "id_client",
+                        "in": "path",
+                        "description": "ID of the client to update",
+                        "type": "integer",
+                        "fomrat": "int64"
+                    },
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "Request fields",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Client"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Client"
+                        }
+                    },
+                    "404": {
+                        "description": "Client not found"
+                    },
+                    "402": {
+                        "description": "Input validation error"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Client"
+                ],
+                "summary": "delete client (not implemented yet)",
+                "description": "",
+                "operationId": "deleteClient",
+                "parameters": [
+                    {
+                        "name": "id_client",
+                        "in": "path",
+                        "description": "ID of the client to delete",
+                        "type": "integer",
+                        "fomrat": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Client successfully deleted"
+                    },
+                    "404": {
+                        "description": "Client not found"
+                    }
+                }
+            }
+        },
+        "/admin/offre": {
+            "post": {
+                "tags": [
+                    "Offre"
+                ],
+                "summary": "Create new offre.",
+                "description": "",
+                "operationId": "addOffre",
+                "consumes": "application/json",
+                "produces": "application/json",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "request body",
+                        "description": "Request fields",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Offre"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Offre"
+                        }
+                    },
+                    "402": {
+                        "description": "Validation errors"
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "Offre"
+                ],
+                "summary": "get all Offres",
+                "description": "",
+                "operationId": "getAllOffres",
+                "consumes": "application/json",
+                "produces": "application/json",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Offre"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/offre/{id_offre}": {
+            "get": {
+                "tags": [
+                    "Offre"
+                ],
+                "summary": "Get one offre",
+                "description": "",
+                "operationId": "getOneOffre",
+                "parameters": [
+                    {
+                        "name": "id_offre",
+                        "in": "path",
+                        "description": "ID of the offre to return",
+                        "type": "integer",
+                        "fomrat": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Offre"
+                        }
+                    },
+                    "404": {
+                        "description": "Offre not found"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Offre"
+                ],
+                "summary": "update Offre",
+                "description": "",
+                "operationId": "updateOffre",
+                "parameters": [
+                    {
+                        "name": "id_offre",
+                        "in": "path",
+                        "description": "ID of the offre to update",
+                        "type": "integer",
+                        "fomrat": "int64"
+                    },
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "Request fields",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Offre"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Offre"
+                        }
+                    },
+                    "404": {
+                        "description": "Offre not found"
+                    },
+                    "402": {
+                        "description": "Input validation error"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Offre"
+                ],
+                "summary": "delete Offre (not implemented yet)",
+                "description": "",
+                "operationId": "deleteOffre",
+                "parameters": [
+                    {
+                        "name": "id_offre",
+                        "in": "path",
+                        "description": "ID of the offre to delete",
+                        "type": "integer",
+                        "fomrat": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Offre successfully deleted"
+                    },
+                    "404": {
+                        "description": "Offre not found"
+                    }
+                }
+            }
+        },
+        "/admin/coupon": {
+            "post": {
+                "tags": [
+                    "Coupon"
+                ],
+                "summary": "Create new coupon.",
+                "description": "",
+                "operationId": "addCoupon",
+                "consumes": "application/json",
+                "produces": "application/json",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "request body",
+                        "description": "Request fields",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Coupon"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Etablissement"
+                        }
+                    },
+                    "402": {
+                        "description": "Validation errors"
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "Coupon"
+                ],
+                "summary": "get all coupons",
+                "description": "",
+                "operationId": "getAllCoupons",
+                "consumes": "application/json",
+                "produces": "application/json",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Coupon"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/coupon/{id_coupon}": {
+            "get": {
+                "tags": [
+                    "Coupon"
+                ],
+                "summary": "Get one coupon",
+                "description": "",
+                "operationId": "getOneCoupon",
+                "parameters": [
+                    {
+                        "name": "id_coupon",
+                        "in": "path",
+                        "description": "ID of the coupon to return",
+                        "type": "integer",
+                        "fomrat": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Coupon"
+                        }
+                    },
+                    "404": {
+                        "description": "Coupon not found"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Coupon"
+                ],
+                "summary": "update Coupon",
+                "description": "",
+                "operationId": "updateCoupon",
+                "parameters": [
+                    {
+                        "name": "id_coupon",
+                        "in": "path",
+                        "description": "ID of the coupon to update",
+                        "type": "integer",
+                        "fomrat": "int64"
+                    },
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "Request fields",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Coupon"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Coupon"
+                        }
+                    },
+                    "404": {
+                        "description": "Coupon not found"
+                    },
+                    "402": {
+                        "description": "Input validation error"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Coupon"
+                ],
+                "summary": "delete Coupon (not implemented yet)",
+                "description": "",
+                "operationId": "deleteCoupon",
+                "parameters": [
+                    {
+                        "name": "id_coupon",
+                        "in": "path",
+                        "description": "ID of the coupon to delete",
+                        "type": "integer",
+                        "fomrat": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Coupon successfully deleted"
+                    },
+                    "404": {
+                        "description": "Coupon not found"
+                    }
+                }
+            }
+        },
+        "/admin/type-paiment": {
+            "post": {
+                "tags": [
+                    "TypePaiment"
+                ],
+                "summary": "Create new type-paiment.",
+                "description": "",
+                "operationId": "addTypePaiment",
+                "consumes": "application/json",
+                "produces": "application/json",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "request body",
+                        "description": "Request fields",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/TypePaiment"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/TypePaiment"
+                        }
+                    },
+                    "402": {
+                        "description": "Validation errors"
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "TypePaiment"
+                ],
+                "summary": "get all typePaiment",
+                "description": "",
+                "operationId": "getAllTypePaiment",
+                "consumes": "application/json",
+                "produces": "application/json",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/TypePaiment"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/type-paiment/{id_type}": {
+            "delete": {
+                "tags": [
+                    "TypePaiment"
+                ],
+                "summary": "delete TypePaiment (not implemented yet)",
+                "description": "",
+                "operationId": "deleteTypePaiment",
+                "parameters": [
+                    {
+                        "name": "id_type",
+                        "in": "path",
+                        "description": "ID of the typePaiment to delete",
+                        "type": "integer",
+                        "fomrat": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "TypePaiment successfully deleted"
+                    },
+                    "404": {
+                        "description": "TypePaiment not found"
+                    }
+                }
             }
         }
     },
     "definitions": {
         "Etablissement": {
             "required": [
-                "id_etablissement",
                 "nom",
+                "adresse",
                 "RC",
                 "RS",
                 "NIF",
@@ -83,11 +745,10 @@
                 "url_logo"
             ],
             "properties": {
-                "id_etablissement": {
-                    "type": "integer",
-                    "uniqueItems": true
-                },
                 "nom": {
+                    "type": "string"
+                },
+                "adresse": {
                     "type": "string"
                 },
                 "RC": {
@@ -103,6 +764,98 @@
                     "type": "string"
                 },
                 "NIS": {
+                    "type": "string"
+                }
+            }
+        },
+        "Client": {
+            "required": [
+                "nom",
+                "prenom",
+                "adresse",
+                "email",
+                "pseudo",
+                "mot_de_passe",
+                "nom_etablissement"
+            ],
+            "properties": {
+                "nom": {
+                    "type": "string"
+                },
+                "adresse": {
+                    "type": "string"
+                },
+                "prenom": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "mot_de_passe": {
+                    "type": "string"
+                },
+                "pseudo": {
+                    "type": "string"
+                },
+                "nom_etablissement": {
+                    "type": "string"
+                }
+            }
+        },
+        "Offre": {
+            "required": [
+                "nom",
+                "nbr_QR_code",
+                "durée"
+            ],
+            "properties": {
+                "nom": {
+                    "type": "string"
+                },
+                "nbr_QR_code": {
+                    "type": "integer"
+                },
+                "durée": {
+                    "type": "integer"
+                }
+            }
+        },
+        "TypePaiment": {
+            "required": [
+                "nom"
+            ],
+            "properties": {
+                "nom": {
+                    "type": "string"
+                }
+            }
+        },
+        "Coupon": {
+            "required": [
+                "code",
+                "nbr_QR_code",
+                "nbr_utilisation",
+                "reduction",
+                "date_debut",
+                "date_fin"
+            ],
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "nbr_QR_code": {
+                    "type": "integer"
+                },
+                "nbr_utilisation": {
+                    "type": "integer"
+                },
+                "reduction": {
+                    "type": "integer"
+                },
+                "date_debut": {
+                    "type": "string"
+                },
+                "date_fin": {
                     "type": "string"
                 }
             }

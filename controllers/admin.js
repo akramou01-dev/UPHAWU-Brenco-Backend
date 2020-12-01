@@ -820,3 +820,6 @@ exports.update_signataire = async (req, res, next) => {
     error_handler(err, next);
   }
 };
+
+
+// delete methods
