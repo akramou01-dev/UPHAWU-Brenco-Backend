@@ -1,33 +1,36 @@
 const Sequelize = require("sequelize");
 const sequelize = require("../config/Database");
-const Theme = sequelize.define(
-  "theme",
+const CompagneSignataire = sequelize.define(
+  "compagneSignataire",
   {
-    id_theme: {
+    id: {
       type: Sequelize.INTEGER.UNSIGNED,
       allowNull: false,
       primaryKey: true,
       comment: "null",
       autoIncrement: true,
     },
-    titre: {
-      type: Sequelize.STRING(45),
-      allowNull: false,
-      comment: "null",
-    },
-    id_client: {
+    id_sigantaire: {
       type: Sequelize.INTEGER.UNSIGNED,
       comment: "null",
       reference: {
-        model: "client",
-        key: "id_client",
+        model: "sigantaire",
+        key: "id_signataire",
+      },
+    },
+    id_compagne: {
+      type: Sequelize.INTEGER.UNSIGNED,
+      comment: "null",
+      reference: {
+        model: "compagne",
+        key: "id_compagne",
       },
     },
   },
   {
-    timestamps: false,
+    timestamps: true,
     freezeTableName: true,
-    tableName: "theme",
+    tableName: "compagneSignataire",
   }
 );
-module.exports = Theme;
+module.exports = CompagneSignataire;

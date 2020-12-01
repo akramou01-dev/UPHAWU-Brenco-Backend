@@ -1,9 +1,9 @@
 const Sequelize = require("sequelize");
 const sequelize = require("../config/Database");
-const Formation = sequelize.define(
-  "formation",
+const Compagne = sequelize.define(
+  "compagne",
   {
-    id_formation: {
+    id_compagne: {
       type: Sequelize.INTEGER.UNSIGNED,
       allowNull: false,
       primaryKey: true,
@@ -34,15 +34,6 @@ const Formation = sequelize.define(
         key: "id_client",
       },
     },
-    id_signataire: {
-      type: Sequelize.INTEGER.UNSIGNED,
-      allowNull: false,
-      comment: "null",
-      reference: {
-        model: "signataire",
-        key: "id_signataire",
-      },
-    },
     id_theme: {
       type: Sequelize.INTEGER.UNSIGNED,
       allowNull: false,
@@ -65,7 +56,7 @@ const Formation = sequelize.define(
   {
     timestamps: false,
     freezeTableName: true,
-    tableName: "formation",
+    tableName: "compagne",
   }
 );
-module.exports = Formation;
+module.exports = Compagne;
