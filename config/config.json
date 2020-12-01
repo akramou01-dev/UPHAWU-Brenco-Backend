@@ -1,10 +1,10 @@
 {
     "development": {
-        "username": "root",
-        "password": "Mot de passe 12",
+        "username": "sql2379399",
+        "password": "tU5%pF1*",
         "port": 3306,
-        "database": "uphawu_dev",
-        "host": "127.0.0.1",
+        "database": "sql2379399",
+        "host": "sql2.freemysqlhosting.net",
         "dialect": "mysql",
         "logging": false
     },
