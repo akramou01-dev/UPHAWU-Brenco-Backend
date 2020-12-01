@@ -1,6 +1,6 @@
 const Sequelize = require("sequelize");
-// const env = "development";
-const env = "development-local";
+const env = "development";
+// const env = "development-local";
 // extracting database configuration from config.json
 const config = require("./config.json")[env];
 
