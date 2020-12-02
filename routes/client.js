@@ -10,6 +10,8 @@ const client_controllers = require("../controllers/client");
  * GET/:id for getting on element
  */
 
+// POST Routes
+
 router.post(
   "/signataire",
   [
@@ -53,29 +55,71 @@ router.post(
       .withMessage("Entrez le nom et le prenom du client.")
       .trim(),
   ],
-  /**adding isAdmin middelware, */
+  /**adding isClient middelware, */
   client_controllers.create_signataire
 );
 
-router.post("/theme", [
-  body("nom").not().isEmpty().withMessage("Le nom est obligatoire"),
-], client_controllers.create_theme);
-
-router.get(
-  "/signataire",
-  /**adding isAdmin middelware, */ client_controllers.signataires
+router.post(
+  "/theme",
+  [
+    body("titre")
+      .not()
+      .isEmpty()
+      .withMessage("Le titre du theme est obligatoire"),
+  ],
+  client_controllers.create_theme
 );
 
+router.post(
+  "/compagne",
+  [
+    body("titre_compagne")
+      .not()
+      .isEmpty()
+      .withMessage("Le titre de la compagne est manquant."),
+    body("description")
+      .not()
+      .isEmpty()
+      .withMessage("La description de la compagne est manquante.")
+      .isLength({ min: 10, max: 100 })
+      .withMessage("La description doit etre entre 10 et 100 caracters"),
+    body("titre_theme")
+      .not()
+      .isEmpty()
+      .withMessage("Le titre du theme de la compagne est manquant."),
+    body("id_template")
+      .not()
+      .isEmpty()
+      .withMessage("Veillez selectionner une template pour les attestation."),
+    // body("signataires")
+    //   .not()
+    //   .isEmpty()
+    //   .withMessage(
+    //     "Il faut selectionner au moin un signataire pour la compagne."
+    //   )
+    //   .isArray()
+    //   .withMessage("Les sigataires doivent étre dans un tableau."),
+  ],
+  client_controllers.create_compagne
+);
+
+// GET ONE Routes
 router.get(
   "/signataire/:id_signataire",
-  /**adding isAdmin middelware, */ client_controllers.signataire
+  /**adding isClient middelware, */ client_controllers.signataire
 );
 
+// GET ALL Routes
 router.get(
   "/signataire",
-  /**adding isAdmin middelware, */ client_controllers.signataires
+  /**adding isClient middelware, */ client_controllers.signataires
+);
+router.get(
+  "/theme",
+  /**adding isClient middelware, */ client_controllers.themes
 );
 
+// PUT Routes
 router.put(
   "/signataire/:id_signataire",
   [
@@ -121,3 +165,5 @@ router.put(
   ],
   client_controllers.update_signataire
 );
+
+module.exports = router;

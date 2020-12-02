@@ -10,6 +10,11 @@ const Compagne = sequelize.define(
       comment: "null",
       autoIncrement: true,
     },
+    titre: {
+      type: Sequelize.STRING(65),
+      allowNull: false,
+      comment: "null",
+    },
     date_de_creation: {
       type: Sequelize.DATE,
       allowNull: false,

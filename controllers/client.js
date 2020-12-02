@@ -1,8 +1,21 @@
 const Client = require("../models/Client");
 const Signataire = require("../models/Signataire");
+const Admin = require("../models/Admin");
 const Theme = require("../models/Theme");
-const { validationResult } = require("express-validator");
+const CompagneSignataire = require("../models/CompagneSignataire");
+const Compagne = require("../models/Compagne");
 
+const { validationResult } = require("express-validator");
+const bcrypt = require("bcryptjs");
+const nodemailer = require("nodemailer");
+const sendgridTransport = require("nodemailer-sendgrid-transport");
+const transporter = nodemailer.createTransport(
+  sendgridTransport({
+    auth: {
+      api_key: `${process.env.NODEMAILER_KEY}`,
+    },
+  })
+);
 const error_handler = (err, next) => {
   if (!err.status_code) {
     err.status_code = 500;
@@ -18,6 +31,7 @@ exports.create_signataire = (req, res, next) => {
   const pseudo = req.body.pseudo;
   const mot_de_passe = req.body.mot_de_passe;
   const info_client = req.body.client;
+  const image = req.files ? req.files[0] : null;
   const [nom_client, prenom_client] = info_client.split(" ");
 
   let client, new_signataire;
@@ -108,6 +122,7 @@ exports.create_signataire = (req, res, next) => {
         pseudo: pseudo,
         adresse: adresse,
         id_client: client.id_client,
+        url_photo: image.path || null,
       });
       // saving the new instance
       return new_signataire.save();
@@ -135,8 +150,68 @@ exports.create_signataire = (req, res, next) => {
     })
     .catch((err) => error_handler(err, next));
 };
-exports.theme = (req, res, next) => {
-  const nom = req.body.nom;
+
+exports.create_compagne = async (req, res, next) => {
+  // const id_client = req.user_id;
+  const id_client = 1;
+  const titre_compagne = req.body.titre_compagne;
+  const description = req.body.description;
+  const titre_theme = req.body.titre_theme;
+  const id_template = req.body.id_template;
+  // const signataires = req.body.signataires; //array of signataires names
+  try {
+    // validation errors handling
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      const error = new Error(errors.array()[0].msg);
+      error.status_code = 402;
+      error.data = errors.array();
+      throw error;
+    }
+    // checking if the client existe
+    const client = await Client.findByPk(id_client);
+    if (!client) {
+      const error = new Error("Client n'existe pas.");
+      error.status_code = 404;
+      throw error;
+    }
+    // cheking if the theme existe
+    const theme = await Theme.findOne({ where: { titre: titre_theme } });
+    if (!theme) {
+      const error = new Error("Le theme n'existe pas.");
+      error.status_code = 404;
+      throw error;
+    }
+    const compagne = await Compagne.findOne({
+      where: { titre: titre_compagne },
+    });
+    if (compagne) {
+      const error = new Error("La compagne existe deja.");
+      error.status_code = 404;
+      throw error;
+    }
+    // creating new instance
+    const new_compagne = new Compagne({
+      titre: titre_compagne,
+      date_de_creation: new Date(),
+      description: description,
+      id_template_attestation: id_template,
+      id_theme: theme.dataValues.id_theme,
+      id_client: id_client,
+    });
+    // saving the new instance
+    const savec_compagne = await new_compagne.save();
+    // sending the response
+    await res.status(200).json({
+      compagne: savec_compagne,
+    });
+  } catch (err) {
+    error_handler(err, next);
+  }
+};
+
+exports.create_theme = (req, res, next) => {
+  const titre = req.body.titre;
   //   const id_client= req.user_id; // we must get it after validating auth and extracting data from the token
   const id_client = 1;
 
@@ -155,8 +230,16 @@ exports.theme = (req, res, next) => {
         error.status_code = 404;
         throw error;
       }
+      return Theme.findOne({ where: { titre: titre, id_client: id_client } });
+    })
+    .then((theme) => {
+      if (theme) {
+        const error = new Error("Le theme existe deja.");
+        error.status_code = 402;
+        throw error;
+      }
       const new_theme = new Theme({
-        nom: nom,
+        titre: titre,
         id_client: id_client,
       });
       return new_theme.save();
@@ -184,12 +267,31 @@ exports.signataire = (req, res, next) => {
 };
 
 exports.signataires = async (req, res, next) => {
+  /**il faut extracter le id_client du client pour retourner que les signataire du cient qui est connecter
+   * const id_client = req.id_client (extracting the data from the token ) */
+
   try {
     const signataires = await Signataire.findAll();
     await res.status(200).json({ signataires: signataires });
   } catch (err) {
     error_handler(err, next);
   }
+};
+exports.themes = (req, res, next) => {
+  // const id_client = req.user_id;
+  const id_client = 1;
+  Theme.findAll({ where: { id_client: id_client } })
+    .then((themes) => {
+      if (!themes) {
+        const error = new Error("Une erreur s'est produite.");
+        error.status_code = 500;
+        throw error;
+      }
+      return res.status(200).json({
+        themes: themes,
+      });
+    })
+    .catch((err) => error_handler(err, next));
 };
 
 exports.update_signataire = async (req, res, next) => {
@@ -302,3 +404,31 @@ exports.update_signataire = async (req, res, next) => {
     error_handler(err, next);
   }
 };
+
+// // setting the signataires in the CompagneSignataire table
+// signataires.forEach(async (signataire) => {
+//   // cheking if the signataire existe
+//   const fetched_signataire = await Signataire.findOne({
+//     where: { nom: signataire },
+//   });
+//   if (!fetched_signataire) {
+//     const error = new Error(`Le signataire ${signataire} n'existe pas.`);
+//     error.status_code = 404;
+//     throw error;
+//   }
+//   // chaking if the signataire beongs to this client
+//   if (fetched_signataire.dataValues.id_client !== id_client) {
+//     const error = new Error(
+//       `Le signataire ${signataire} n'est pas un signataire du client sous le nom ${client.dataValues.nom} ${client.dataValues.perenom}`
+//     );
+//     error.status_code = 404;
+//     throw error;
+//   }
+//   // creating new instance of the CompagneSignataire relations
+//   const new_relation = new CompagneSignataire({
+//     id_signataire: fetched_signataire.dataValues.id_signataire,
+//     id_compagne: savec_compagne.id_compagne,
+//   });
+//   // saving the instance
+//   const saved_relation = new_relation.save();
+// });

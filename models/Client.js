@@ -66,6 +66,11 @@ const Client = sequelize.define(
       comment : "null", 
       allowNull : true,
     },
+    // nbr_signataire_par_compagne : {
+    //   type : Sequelize.INTEGER(2),
+    //   comment : "null", 
+    //   allowNull : true,
+    // },
     id_etablissement: {
       type: Sequelize.INTEGER.UNSIGNED,
       allowNull: false,

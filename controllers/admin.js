@@ -110,7 +110,7 @@ exports.create_client = (req, res, next) => {
   const pseudo = req.body.pseudo;
   const mot_de_passe = req.body.mot_de_passe;
   const nom_etablissement = req.body.nom_etablissement;
-  const image = req.files[0]; 
+  const image = req.files ? req.files[0] : null;
   let id_etablissement, new_client;
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -198,7 +198,7 @@ exports.create_client = (req, res, next) => {
         pseudo: pseudo,
         adresse: adresse,
         id_etablissement: id_etablissement,
-        url_photo : image.path
+        url_photo: image.path || null,
       });
       // saving the new instance
       return new_client.save();
@@ -313,7 +313,6 @@ exports.create_coupon = (req, res, next) => {
     .catch((err) => error_handler(err, next));
 };
 
-
 exports.etablissement = (req, res, next) => {
   const id_etablissement = req.params.id_etablissement;
   Etablissement.findByPk(id_etablissement)
@@ -367,8 +366,6 @@ exports.coupon = (req, res, next) => {
     })
     .catch((err) => error_handler(err, next));
 };
-
-
 
 exports.etablissements = async (req, res, next) => {
   try {
@@ -459,8 +456,8 @@ exports.update_client = async (req, res, next) => {
   const pseudo = req.body.pseudo;
   const mot_de_passe = req.body.mot_de_passe;
   const nom_etablissement = req.body.nom_etablissement;
-    email_existe = false,
-    pseudo_existe = false;
+  const image = req.files ? req.files[0] : null;
+  let((email_existe = false)), (pseudo_existe = false);
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -552,6 +549,9 @@ exports.update_client = async (req, res, next) => {
     fetched_client.nom = nom;
     fetched_client.prenom = prenom;
     fetched_client.adresse = adresse;
+    if (image) {
+      fetched_client.url_photo = image.path;
+    }
     const saved_client = await fetched_client.save();
     res.status(200).json({
       updated_client: saved_client,
@@ -560,6 +560,5 @@ exports.update_client = async (req, res, next) => {
     error_handler(err, next);
   }
 };
-
 
 // delete methods

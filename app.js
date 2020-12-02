@@ -9,6 +9,8 @@ const create_admin = require("./utils/admin").create_admin;
 const app = express();
 // importing routes
 const adminRoutes = require("./routes/admin");
+const clientRoutes = require("./routes/client"); 
+
 const swaggerUi = require("swagger-ui-express");
 const swaggerDocument = require("./swagger.json");
 
@@ -111,8 +113,11 @@ app.use((req, res, next) => {
   next();
 });
 
+
 // using routes middelwares
 app.use("/admin", adminRoutes);
+app.use("/client", clientRoutes);
+
 
 //Error middelware
 app.use((error, req, res, next) => {
