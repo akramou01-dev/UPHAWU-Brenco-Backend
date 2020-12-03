@@ -32,7 +32,7 @@ const Condidat = sequelize.define(
     },
     presence: {
       type: Sequelize.BOOLEAN,
-      allowNull: false,
+      allowNull: true,
       comment: "null",
       defaultValue: true,
     },

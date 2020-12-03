@@ -102,8 +102,45 @@ router.post(
   ],
   client_controllers.create_compagne
 );
-router.post("/signataire-compagne", client_controllers.assign_signataire_compagne)
+router.post(
+  "/signataire-compagne",
+  [
+    body("signataire")
+      .notEmpty()
+      .withMessage("La compagne doit avoir au moin un signataire")
+      .isArray({ min: 1 })
+      .withMessage("Le tableau ne doit pas étre vide."),
+  ],
+  client_controllers.assign_signataire_compagne
+);
 
+router.post(
+  "/classe",
+  [
+    body("date_debut")
+      .notEmpty()
+      .withMessage("La date du debut de la classe est manquante.")
+      .isDate()
+      .withMessage("La date du debut n'est pas valide."),
+
+    body("date_fin")
+      .notEmpty()
+      .withMessage("La date de la fin de la classe est manquante.")
+      .isDate()
+      .withMessage("La date de la fin n'est pas valide."),
+    body("signataire")
+      .notEmpty()
+      .withMessage(
+        "Le signataire est obligatooire pour la creation de la classe"
+      ),
+    body("titre_compagne")
+      .notEmpty()
+      .withMessage("Le titre de la compagne est manquant."),
+  ],
+  client_controllers.create_classe
+);
+
+router.post("/commande", client_controllers.create_commande);
 
 // GET ONE Routes
 router.get(
@@ -119,6 +156,14 @@ router.get(
 router.get(
   "/theme",
   /**adding isClient middelware, */ client_controllers.themes
+);
+router.get(
+  "/compagne",
+  /**adding isClient middelware, */ client_controllers.compagnes
+);
+router.get(
+  "/commande",
+  /**adding isClient middelware, */ client_controllers.commandes
 );
 
 // PUT Routes

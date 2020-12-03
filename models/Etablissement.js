@@ -27,13 +27,18 @@ const Etablissement = sequelize.define(
     },
     id_offre: {
       type: Sequelize.INTEGER.UNSIGNED,
-      allowNull: false,
+      allowNull: true,
       comment: "null",
       reference: {
         model: "offre",
         key: "id_offre",
       },
-      defaultValue : "1"
+      defaultValue: "1",
+    },
+    nbr_QR_code: {
+      type: Sequelize.INTEGER,
+      allowNull: true,
+      comment: "null",
     },
     RS: {
       type: Sequelize.STRING(45),

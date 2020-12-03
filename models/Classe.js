@@ -17,16 +17,16 @@ const Classe = sequelize.define(
     },
     date_de_modification: {
       type: Sequelize.DATE,
-      allowNull: false,
+      allowNull: true,
       comment: "null",
     },
     date_debut: {
-      type: Sequelize.DATE,
+      type: Sequelize.DATEONLY,
       allowNull: false,
       comment: "null",
     },
     date_fin: {
-      type: Sequelize.DATE,
+      type: Sequelize.DATEONLY,
       allowNull: false,
       comment: "null",
     },
@@ -38,12 +38,12 @@ const Classe = sequelize.define(
         key: "id_signataire",
       },
     },
-    id_formation: {
+    id_compagne: {
       type: Sequelize.INTEGER.UNSIGNED,
       comment: "null",
       reference: {
-        model: "formation",
-        key: "id_formation",
+        model: "compagne",
+        key: "id_compagne",
       },
     },
   },

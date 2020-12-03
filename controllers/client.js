@@ -4,6 +4,9 @@ const Admin = require("../models/Admin");
 const Theme = require("../models/Theme");
 const CompagneSignataire = require("../models/CompagneSignataire");
 const Compagne = require("../models/Compagne");
+const Classe = require("../models/Classe");
+const Commande = require("../models/Commande");
+const Offre = require("../models/Offre");
 
 const { validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs");
@@ -21,6 +24,15 @@ const error_handler = (err, next) => {
     err.status_code = 500;
   }
   next(err);
+};
+
+const create_and_throw_error = (err_message, err_status_code, data) => {
+  const error = new Error(err_message);
+  error.status_code = err_status_code;
+  if (data) {
+    error.data = data;
+  }
+  throw error;
 };
 
 exports.create_signataire = (req, res, next) => {
@@ -210,74 +222,87 @@ exports.create_compagne = async (req, res, next) => {
   }
 };
 
-exports.assign_signataire_compagne = async (req, res, next) => {
+exports.create_classe = async (req, res, next) => {
   // const id_client = req.user_id;
-  const id_client = 1;
+  const id_client = 1; // for testing before implementing the AUTH
+  const date_debut = req.body.date_debut;
+  const date_fin = req.body.date_fin;
+  const signataire = req.body.signataire;
+  const [nom_signataire, prenom_signataire] = signataire.split(" ");
   const titre_compagne = req.body.titre_compagne;
-  const signataires = req.body.signataires; // array of signataire
-  let res_sent = false;
   try {
-    const client = await Client.findByPk(id_client);
-    if (!client) {
-      const error = new Error("Client n'existe pas.");
-      error.status_code = 404;
+    // cheking for the validation request fields errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      const error = new Error(errors.array()[0].msg);
+      error.status_code = 402;
+      error.data = errors.array();
       throw error;
     }
+    // Validating the dates
+    const date = new Date();
+    const current_date_format = `${date.getFullYear()}-${
+      date.getMonth() < 10 ? "0" + date.getMonth() : date.getMonth()
+    }-${date.getDay() < 10 ? "0" + date.getDate() : date.getDate()}`;
+    if (date_debut < current_date_format) {
+      create_and_throw_error("Date debut doit étre dans le future.", 402);
+    }
+    if (date_debut > date_fin) {
+      create_and_throw_error(
+        "Date fin doit etre supperieur a date debut.",
+        402
+      );
+    }
+
+    // cheking if the compagne existe;
     const compagne = await Compagne.findOne({
       where: { titre: titre_compagne },
     });
     if (!compagne) {
-      const error = new Error("Compagne n'existe pas.");
-      error.status_code = 404;
-      throw error;
+      create_and_throw_error("La compagne n'existe pas.");
     }
-    for (let i = 0; i < signataires.length; i++) {
-      const [nom_signataire, prenom_signataire] = signataires[i].split(" ");
-      console.log(nom_signataire, prenom_signataire);
-      try {
-        const fetched_signataire = await Signataire.findOne({
-          where: { nom: nom_signataire, prenom: prenom_signataire },
-        });
-        if (!fetched_signataire) {
-          const error = new Error(
-            `Le signataire ${nom_signataire} ${prenom_signataire} n'existe pas.`
-          );
-          error.status_code = 404;
-          throw error;
-        }
-        // chaking if the signataire beongs to this client
-        if (fetched_signataire.dataValues.id_client !== id_client) {
-          const error = new Error(
-            `Le signataire ${signataire} n'est pas un signataire du client sous le nom ${client.dataValues.nom} ${client.dataValues.perenom}`
-          );
-          error.status_code = 404;
-          throw error;
-        }
-        // creating new instance of the CompagneSignataire relations
-        const new_relation = new CompagneSignataire({
-          id_signataire: fetched_signataire.dataValues.id_signataire,
-          // id_compagne: compagne.dataValues.id_compagne,
-          id_compagne: 1,
-        });
-        // // saving the instance
-        await new_relation.save();
-      } catch (err) {
-        res_sent = true;
-        error_handler(err, next);
-        break;
-        // console.log(err);
-      }
+    // cheking if the signataire existe and belongs to this client
+    const fetched_signataire = await Signataire.findOne({
+      where: { nom: nom_signataire, prenom: prenom_signataire },
+    });
+    if (!fetched_signataire) {
+      create_and_throw_error("Le signataire n'existe pas.");
     }
-    if (!res_sent) {
-      res.status(200).json({
-        message: "done",
-      });
+    if (fetched_signataire.dataValues.id_client !== id_client) {
+      create_and_throw_error(
+        "Le signataire n'appartient pas au client connecter."
+      );
     }
+    // cheking if the class existe
+
+    const classe_existe = await Classe.findOne({
+      where: {
+        date_debut: date_debut,
+        date_fin: date_fin,
+        id_signataire: fetched_signataire.dataValues.id_signataire,
+        id_compagne: compagne.dataValues.id_compagne,
+      },
+    });
+    if (classe_existe) {
+      create_and_throw_error("La classe existe deja.", 402);
+    }
+    // creating the new instance
+    const new_classe = new Classe({
+      date_debut: date_debut,
+      date_fin: date_fin,
+      id_signataire: fetched_signataire.dataValues.id_signataire,
+      id_compagne: compagne.dataValues.id_compagne,
+      date_de_creation: date,
+    });
+    // saving the new instance
+    const saved_classe = await new_classe.save();
+    res.status(200).json({
+      new_classe: saved_classe,
+    });
   } catch (err) {
     error_handler(err, next);
   }
 };
-
 exports.create_theme = (req, res, next) => {
   const titre = req.body.titre;
   //   const id_client= req.user_id; // we must get it after validating auth and extracting data from the token
@@ -319,6 +344,40 @@ exports.create_theme = (req, res, next) => {
     })
     .catch((err) => error_handler(err, next));
 };
+exports.create_commande = async (req, res, next) => {
+  // const id_client = req.user_id;
+  const id_client = 1;
+  const offre = req.body.offre; // we must check if there is an offre or it's a custom order
+  let nbr_QR_code = req.body.nbr_QR_code,
+    is_error = false;
+  try {
+    // cehking of the validation fields body errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      create_and_throw_error(errors.array()[0].msg, 402, errors.array());
+    }
+    // cheking if this order is a custom one or is related with an offre
+    if (offre) {
+      // cheking if the offre existe
+      const fetched_offre = await Offre.findOne({ where: { nom: offre } });
+      if (!fetched_offre) {
+        is_error = true;
+        create_and_throw_error("L'offre n'existe pas.");
+      }
+      nbr_QR_code = fetched_offre.dataValues.nbr_QR_code;
+    }
+    if (!is_error) {
+      const new_commande = new Commande({
+        nbr_QR_code: nbr_QR_code,
+        id_client: id_client,
+      });
+      const saved_commande = await new_commande.save();
+      const res_send = await res.status(200).json({
+        new_commande: saved_commande,
+      });
+    }
+  } catch (error) {}
+};
 
 exports.signataire = (req, res, next) => {
   const id_signataire = req.params.id_signataire;
@@ -357,6 +416,54 @@ exports.themes = (req, res, next) => {
       }
       return res.status(200).json({
         themes: themes,
+      });
+    })
+    .catch((err) => error_handler(err, next));
+};
+exports.compagnes = async (req, res, next) => {
+  // const id_client = req.user_id;
+  const id_client = 1;
+  Compagne.findAll({ where: { id_client: id_client } })
+    .then(async (compagnes) => {
+      if (!compagnes) {
+        create_and_throw_error(
+          "Une errors s'est produite lors de la récupération des compagnes"
+        );
+      }
+      const new_compagnes = await Promise.all(
+        compagnes.map(async (compagne) => {
+          //counting all the classes
+          const nbr_classe = await Classe.findAndCountAll({
+            where: { id_compagne: compagne.dataValues.id_compagne },
+          });
+          return {
+            ...compagne.dataValues,
+            nbr_classe: nbr_classe,
+          };
+        })
+      );
+      return new_compagnes;
+    })
+    .then((result) => {
+      console.log(result);
+      return res.status(200).json({
+        compagnes: result,
+      });
+    })
+    .catch((err) => error_handler(err, next));
+};
+exports.commandes = (req, res, next) => {
+  // const id_client = req.user_id;
+  const id_client = 1;
+  Commande.findAll({ where: { id_client: id_client } })
+    .then((commandes) => {
+      if (!commandes) {
+        create_and_throw_error(
+          "Une errors s'est produite lors de la récupération des commandes"
+        );
+      }
+      return res.status(200).json({
+        commandes: commandes,
       });
     })
     .catch((err) => error_handler(err, next));
@@ -468,6 +575,74 @@ exports.update_signataire = async (req, res, next) => {
     res.status(200).json({
       updated_signataire: saved_signataire,
     });
+  } catch (err) {
+    error_handler(err, next);
+  }
+};
+
+exports.assign_signataire_compagne = async (req, res, next) => {
+  // const id_client = req.user_id;
+  const id_client = 1;
+  const titre_compagne = req.body.titre_compagne;
+  const signataires = req.body.signataires; // array of signataire
+  let res_sent = false;
+  try {
+    const client = await Client.findByPk(id_client);
+    if (!client) {
+      const error = new Error("Client n'existe pas.");
+      error.status_code = 404;
+      throw error;
+    }
+    const compagne = await Compagne.findOne({
+      where: { titre: titre_compagne },
+    });
+    if (!compagne) {
+      const error = new Error("Compagne n'existe pas.");
+      error.status_code = 404;
+      throw error;
+    }
+    for (let i = 0; i < signataires.length; i++) {
+      const [nom_signataire, prenom_signataire] = signataires[i].split(" ");
+      console.log(nom_signataire, prenom_signataire);
+      try {
+        const fetched_signataire = await Signataire.findOne({
+          where: { nom: nom_signataire, prenom: prenom_signataire },
+        });
+        if (!fetched_signataire) {
+          const error = new Error(
+            `Le signataire ${nom_signataire} ${prenom_signataire} n'existe pas.`
+          );
+          error.status_code = 404;
+          throw error;
+        }
+        // chaking if the signataire beongs to this client
+        if (fetched_signataire.dataValues.id_client !== id_client) {
+          const error = new Error(
+            `Le signataire ${signataire} n'est pas un signataire du client sous le nom ${client.dataValues.nom} ${client.dataValues.perenom}`
+          );
+          error.status_code = 404;
+          throw error;
+        }
+        // creating new instance of the CompagneSignataire relations
+        const new_relation = new CompagneSignataire({
+          id_signataire: fetched_signataire.dataValues.id_signataire,
+          // id_compagne: compagne.dataValues.id_compagne,
+          id_compagne: 1,
+        });
+        // // saving the instance
+        await new_relation.save();
+      } catch (err) {
+        res_sent = true;
+        error_handler(err, next);
+        break;
+        // console.log(err);
+      }
+    }
+    if (!res_sent) {
+      res.status(200).json({
+        message: "done",
+      });
+    }
   } catch (err) {
     error_handler(err, next);
   }

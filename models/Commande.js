@@ -18,10 +18,16 @@ const Commande = sequelize.define(
         key: "id_client",
       },
     },
-    nbr_QR_code :{
-        type : Sequelize.INTEGER, 
-        allowNull : false, 
-        comment : "null", 
+    nbr_QR_code: {
+      type: Sequelize.INTEGER,
+      allowNull: false,
+      comment: "null",
+    },
+    etat: {
+      type: Sequelize.ENUM("en_attente", "validée"),
+      allowNull: false,
+      comment: "null",
+      defaultValue: "en_attente",
     },
   },
   {
