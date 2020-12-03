@@ -102,6 +102,8 @@ router.post(
   ],
   client_controllers.create_compagne
 );
+router.post("/signataire-compagne", client_controllers.assign_signataire_compagne)
+
 
 // GET ONE Routes
 router.get(

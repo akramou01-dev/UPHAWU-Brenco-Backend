@@ -200,11 +200,79 @@ exports.create_compagne = async (req, res, next) => {
       id_client: id_client,
     });
     // saving the new instance
-    const savec_compagne = await new_compagne.save();
+    const saved_compagne = await new_compagne.save();
     // sending the response
     await res.status(200).json({
-      compagne: savec_compagne,
+      compagne: saved_compagne,
     });
+  } catch (err) {
+    error_handler(err, next);
+  }
+};
+
+exports.assign_signataire_compagne = async (req, res, next) => {
+  // const id_client = req.user_id;
+  const id_client = 1;
+  const titre_compagne = req.body.titre_compagne;
+  const signataires = req.body.signataires; // array of signataire
+  let res_sent = false;
+  try {
+    const client = await Client.findByPk(id_client);
+    if (!client) {
+      const error = new Error("Client n'existe pas.");
+      error.status_code = 404;
+      throw error;
+    }
+    const compagne = await Compagne.findOne({
+      where: { titre: titre_compagne },
+    });
+    if (!compagne) {
+      const error = new Error("Compagne n'existe pas.");
+      error.status_code = 404;
+      throw error;
+    }
+    for (let i = 0; i < signataires.length; i++) {
+      const [nom_signataire, prenom_signataire] = signataires[i].split(" ");
+      console.log(nom_signataire, prenom_signataire);
+      try {
+        const fetched_signataire = await Signataire.findOne({
+          where: { nom: nom_signataire, prenom: prenom_signataire },
+        });
+        if (!fetched_signataire) {
+          const error = new Error(
+            `Le signataire ${nom_signataire} ${prenom_signataire} n'existe pas.`
+          );
+          error.status_code = 404;
+          throw error;
+        }
+        // chaking if the signataire beongs to this client
+        if (fetched_signataire.dataValues.id_client !== id_client) {
+          const error = new Error(
+            `Le signataire ${signataire} n'est pas un signataire du client sous le nom ${client.dataValues.nom} ${client.dataValues.perenom}`
+          );
+          error.status_code = 404;
+          throw error;
+        }
+        // creating new instance of the CompagneSignataire relations
+        const new_relation = new CompagneSignataire({
+          id_signataire: fetched_signataire.dataValues.id_signataire,
+          // id_compagne: compagne.dataValues.id_compagne,
+          id_compagne: 1,
+        });
+        // // saving the instance
+        await new_relation.save();
+      } catch (err) {
+        res_sent = true;
+        error_handler(err, next);
+        break;
+        // console.log(err);
+      }
+    }
+    if (!res_sent) {
+      res.status(200).json({
+        message: "done",
+      });
+    }
   } catch (err) {
     error_handler(err, next);
   }
@@ -404,31 +472,3 @@ exports.update_signataire = async (req, res, next) => {
     error_handler(err, next);
   }
 };
-
-// // setting the signataires in the CompagneSignataire table
-// signataires.forEach(async (signataire) => {
-//   // cheking if the signataire existe
-//   const fetched_signataire = await Signataire.findOne({
-//     where: { nom: signataire },
-//   });
-//   if (!fetched_signataire) {
-//     const error = new Error(`Le signataire ${signataire} n'existe pas.`);
-//     error.status_code = 404;
-//     throw error;
-//   }
-//   // chaking if the signataire beongs to this client
-//   if (fetched_signataire.dataValues.id_client !== id_client) {
-//     const error = new Error(
-//       `Le signataire ${signataire} n'est pas un signataire du client sous le nom ${client.dataValues.nom} ${client.dataValues.perenom}`
-//     );
-//     error.status_code = 404;
-//     throw error;
-//   }
-//   // creating new instance of the CompagneSignataire relations
-//   const new_relation = new CompagneSignataire({
-//     id_signataire: fetched_signataire.dataValues.id_signataire,
-//     id_compagne: savec_compagne.id_compagne,
-//   });
-//   // saving the instance
-//   const saved_relation = new_relation.save();
-// });

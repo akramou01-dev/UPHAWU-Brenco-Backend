@@ -9,10 +9,12 @@ const create_admin = require("./utils/admin").create_admin;
 const app = express();
 // importing routes
 const adminRoutes = require("./routes/admin");
-const clientRoutes = require("./routes/client"); 
+const clientRoutes = require("./routes/client");
 
 const swaggerUi = require("swagger-ui-express");
 const swaggerDocument = require("./swagger.json");
+const Admin = require("./models/Admin");
+const Client = require("./models/Client");
 
 let file_folder;
 const files_store = multer.diskStorage({
@@ -113,11 +115,9 @@ app.use((req, res, next) => {
   next();
 });
 
-
 // using routes middelwares
 app.use("/admin", adminRoutes);
 app.use("/client", clientRoutes);
-
 
 //Error middelware
 app.use((error, req, res, next) => {
@@ -132,6 +132,7 @@ app.use((error, req, res, next) => {
 create_admin();
 
 // Database Relations
+
 
 // swagger config
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));

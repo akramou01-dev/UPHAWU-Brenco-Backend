@@ -1,4 +1,4 @@
-const date = new Date()
-
-const month = date.getMonth()<10 ? "0"+date.getMonth() : date.getMonth()
-console.log(month)
+[3,22,32,4,5].forEach((element,index)=>{
+    console.log(element)
+    console.log(index)
+})
