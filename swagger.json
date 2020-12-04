@@ -9,7 +9,7 @@
             "url": "https://opensource.org/licenses/MIT"
         }
     },
-    "host": "localhost:5000",
+    "host": "https://uphawu-brenco.herokuapp.com/",
     "basePath": "/",
     "tags": [
         {
@@ -34,7 +34,7 @@
         }
     ],
     "schemes": [
-        "http"
+        "https"
     ],
     "consumes": [
         "application/json"
