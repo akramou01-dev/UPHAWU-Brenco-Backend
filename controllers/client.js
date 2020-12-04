@@ -7,6 +7,7 @@ const Compagne = require("../models/Compagne");
 const Classe = require("../models/Classe");
 const Commande = require("../models/Commande");
 const Offre = require("../models/Offre");
+const Etablissement = require("../models/Etablissement");
 
 const { validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs");
@@ -134,7 +135,7 @@ exports.create_signataire = (req, res, next) => {
         pseudo: pseudo,
         adresse: adresse,
         id_client: client.id_client,
-        url_photo: image.path || null,
+        url_photo: image ? image.path : null,
       });
       // saving the new instance
       return new_signataire.save();
@@ -234,19 +235,18 @@ exports.create_classe = async (req, res, next) => {
     // cheking for the validation request fields errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      const error = new Error(errors.array()[0].msg);
-      error.status_code = 402;
-      error.data = errors.array();
-      throw error;
+      create_and_throw_error(errors.array()[0].msg, 402, errors.array());
     }
     // Validating the dates
     const date = new Date();
     const current_date_format = `${date.getFullYear()}-${
-      date.getMonth() < 10 ? "0" + date.getMonth() : date.getMonth()
+      date.getMonth() < 10 ? "0" + (date.getMonth() + 1) : date.getMonth() + 1
     }-${date.getDay() < 10 ? "0" + date.getDate() : date.getDate()}`;
+
     if (date_debut < current_date_format) {
       create_and_throw_error("Date debut doit étre dans le future.", 402);
     }
+
     if (date_debut > date_fin) {
       create_and_throw_error(
         "Date fin doit etre supperieur a date debut.",
@@ -360,6 +360,7 @@ exports.create_commande = async (req, res, next) => {
     if (offre) {
       // cheking if the offre existe
       const fetched_offre = await Offre.findOne({ where: { nom: offre } });
+      console.log(fetched_offre)
       if (!fetched_offre) {
         is_error = true;
         create_and_throw_error("L'offre n'existe pas.");
@@ -376,7 +377,9 @@ exports.create_commande = async (req, res, next) => {
         new_commande: saved_commande,
       });
     }
-  } catch (error) {}
+  } catch (err) {
+    error_handler(err, next);
+  }
 };
 
 exports.signataire = (req, res, next) => {
@@ -389,6 +392,52 @@ exports.signataire = (req, res, next) => {
         throw error;
       }
       return res.status(200).json({ signataire: signataire });
+    })
+    .catch((err) => error_handler(err, next));
+};
+exports.commande = (req, res, next) => {
+  const id_client = 1;
+  const id_commande = req.params.id_commande;
+  let fetched_commande, fetched_client;
+  Commande.findOne({
+    where: { id_commande: id_commande },
+  })
+    .then((commande) => {
+      if (!commande) {
+        create_and_throw_error("la commande n'existe pas.");
+      }
+      if (commande.dataValues.id_client !== id_client) {
+        create_and_throw_error(
+          "Vous n'étes pas autorisez pour voir cette commande."
+        );
+      }
+      fetched_commande = commande;
+      return Client.findByPk(id_client);
+    })
+    .then((client) => {
+      if (!client) {
+        create_and_throw_error("Le client n'existe pas.");
+      }
+      fetched_client = client;
+      return Etablissement.findByPk(client.dataValues.id_etablissement);
+    })
+    .then((etablissement) => {
+      const edited_commande = {
+        ...fetched_commande.dataValues,
+        info_client: {
+          nom: fetched_client.dataValues.nom,
+          prenom: fetched_client.dataValues.prenom,
+          email: fetched_client.dataValues.email,
+        },
+        info_etablissement: {
+          nom: etablissement.dataValues.nom,
+          adresse: etablissement.dataValues.adresse,
+          url_logo: etablissement.dataValues.url_logo,
+        },
+      };
+      res.status(200).json({
+        commande: edited_commande,
+      });
     })
     .catch((err) => error_handler(err, next));
 };
@@ -436,9 +485,35 @@ exports.compagnes = async (req, res, next) => {
           const nbr_classe = await Classe.findAndCountAll({
             where: { id_compagne: compagne.dataValues.id_compagne },
           });
+          const signataire_ids = await CompagneSignataire.findAll({
+            where: { id_compagne: compagne.dataValues.id_compagne },
+          });
+          let nom_signataires = [];
+          if (signataire_ids.length !== 0) {
+            nom_signataires = await Promise.all(
+              signataire_ids.map(async (data) => {
+                console.log(data.dataValues.id_sigantaire);
+                const fetched_signataire = await Signataire.findByPk(
+                  data.dataValues.id_signataire
+                );
+                if (!fetched_signataire) {
+                  create_and_throw_error(
+                    "Le signataire sous le id :" +
+                      data.dataValues.id_signataire +
+                      " n'existe pas."
+                  );
+                }
+                return {
+                  nom: fetched_signataire.dataValues.nom,
+                  prenom: fetched_signataire.dataValues.prenom,
+                };
+              })
+            );
+          }
           return {
             ...compagne.dataValues,
             nbr_classe: nbr_classe,
+            nom_signataires: nom_signataires,
           };
         })
       );
@@ -452,6 +527,8 @@ exports.compagnes = async (req, res, next) => {
     })
     .catch((err) => error_handler(err, next));
 };
+
+// get classes
 exports.commandes = (req, res, next) => {
   // const id_client = req.user_id;
   const id_client = 1;
@@ -587,6 +664,10 @@ exports.assign_signataire_compagne = async (req, res, next) => {
   const signataires = req.body.signataires; // array of signataire
   let res_sent = false;
   try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      create_and_throw_error(errors.array()[0].msg, 402, errors.array());
+    }
     const client = await Client.findByPk(id_client);
     if (!client) {
       const error = new Error("Client n'existe pas.");
@@ -609,19 +690,17 @@ exports.assign_signataire_compagne = async (req, res, next) => {
           where: { nom: nom_signataire, prenom: prenom_signataire },
         });
         if (!fetched_signataire) {
-          const error = new Error(
-            `Le signataire ${nom_signataire} ${prenom_signataire} n'existe pas.`
+          create_and_throw_error(
+            `Le signataire ${nom_signataire} ${prenom_signataire} n'existe pas.`,
+            404
           );
-          error.status_code = 404;
-          throw error;
         }
         // chaking if the signataire beongs to this client
         if (fetched_signataire.dataValues.id_client !== id_client) {
-          const error = new Error(
-            `Le signataire ${signataire} n'est pas un signataire du client sous le nom ${client.dataValues.nom} ${client.dataValues.perenom}`
+          create_and_throw_error(
+            `Le signataire ${signataire} n'est pas un signataire du client sous le nom ${client.dataValues.nom} ${client.dataValues.perenom}`,
+            402
           );
-          error.status_code = 404;
-          throw error;
         }
         // creating new instance of the CompagneSignataire relations
         const new_relation = new CompagneSignataire({
@@ -638,6 +717,7 @@ exports.assign_signataire_compagne = async (req, res, next) => {
         // console.log(err);
       }
     }
+    console.log(res_sent);
     if (!res_sent) {
       res.status(200).json({
         message: "done",

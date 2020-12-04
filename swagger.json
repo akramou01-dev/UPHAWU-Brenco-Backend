@@ -730,133 +730,715 @@
                     }
                 }
             }
-        }
-    },
-    "definitions": {
-        "Etablissement": {
-            "required": [
-                "nom",
-                "adresse",
-                "RC",
-                "RS",
-                "NIF",
-                "NAF",
-                "NIS",
-                "url_logo"
-            ],
-            "properties": {
-                "nom": {
-                    "type": "string"
-                },
-                "adresse": {
-                    "type": "string"
-                },
-                "RC": {
-                    "type": "string"
-                },
-                "RS": {
-                    "type": "string"
-                },
-                "NIF": {
-                    "type": "string"
-                },
-                "NAF": {
-                    "type": "string"
-                },
-                "NIS": {
-                    "type": "string"
+        },
+        "/client/signataire": {
+            "post": {
+                "tags": [
+                    "Signataire"
+                ],
+                "summary": "Create new signataire.",
+                "description": "",
+                "operationId": "addSignataire",
+                "consumes": "application/json",
+                "produces": "application/json",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "request body",
+                        "description": "Request fields",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Signataire"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Signataire"
+                        }
+                    },
+                    "402": {
+                        "description": "Validation errors"
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "Signataire"
+                ],
+                "summary": "get all signataires",
+                "description": "",
+                "operationId": "getAllSignataire",
+                "consumes": "application/json",
+                "produces": "application/json",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Signataire"
+                            }
+                        }
+                    }
                 }
             }
         },
-        "Client": {
-            "required": [
-                "nom",
-                "prenom",
-                "adresse",
-                "email",
-                "pseudo",
-                "mot_de_passe",
-                "nom_etablissement"
-            ],
-            "properties": {
-                "nom": {
-                    "type": "string"
-                },
-                "adresse": {
-                    "type": "string"
-                },
-                "prenom": {
-                    "type": "string"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "mot_de_passe": {
-                    "type": "string"
-                },
-                "pseudo": {
-                    "type": "string"
-                },
-                "nom_etablissement": {
-                    "type": "string"
+        "/client/signataire/{id_signataire}": {
+            "get": {
+                "tags": [
+                    "Signataire"
+                ],
+                "summary": "Get one signataire",
+                "description": "",
+                "operationId": "getOneSignataire",
+                "parameters": [
+                    {
+                        "name": "id_signataire",
+                        "in": "path",
+                        "description": "ID of the signataire to return",
+                        "type": "integer",
+                        "fomrat": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Signataire"
+                        }
+                    },
+                    "404": {
+                        "description": "Signataire not found"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Signataire"
+                ],
+                "summary": "update Signataire",
+                "description": "",
+                "operationId": "updateSignataire",
+                "parameters": [
+                    {
+                        "name": "id_signataire",
+                        "in": "path",
+                        "description": "ID of the signataire to update",
+                        "type": "integer",
+                        "fomrat": "int64"
+                    },
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "Request fields",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Signataire"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Signataire"
+                        }
+                    },
+                    "404": {
+                        "description": "Signataire not found"
+                    },
+                    "402": {
+                        "description": "Input validation error"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Signataire"
+                ],
+                "summary": "delete Signataire (not implemented yet)",
+                "description": "",
+                "operationId": "deleteSignataire",
+                "parameters": [
+                    {
+                        "name": "id_signataire",
+                        "in": "path",
+                        "description": "ID of the signataire to delete",
+                        "type": "integer",
+                        "fomrat": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Signataire successfully deleted"
+                    },
+                    "404": {
+                        "description": "Signataire not found"
+                    }
                 }
             }
         },
-        "Offre": {
-            "required": [
-                "nom",
-                "nbr_QR_code",
-                "durée"
-            ],
-            "properties": {
-                "nom": {
-                    "type": "string"
-                },
-                "nbr_QR_code": {
-                    "type": "integer"
-                },
-                "durée": {
-                    "type": "integer"
+        "/client/theme": {
+            "post": {
+                "tags": [
+                    "Theme"
+                ],
+                "summary": "Create new theme.",
+                "description": "",
+                "operationId": "addTheme",
+                "consumes": "application/json",
+                "produces": "application/json",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "request body",
+                        "description": "Request fields",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Theme"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Theme"
+                        }
+                    },
+                    "402": {
+                        "description": "Validation errors"
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "Theme"
+                ],
+                "summary": "get all themes",
+                "description": "",
+                "operationId": "getAllTheme",
+                "consumes": "application/json",
+                "produces": "application/json",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Theme"
+                            }
+                        }
+                    }
                 }
             }
         },
-        "TypePaiment": {
-            "required": [
-                "nom"
-            ],
-            "properties": {
-                "nom": {
-                    "type": "string"
+        "/admin/theme/{id_theme}": {
+            "delete": {
+                "tags": [
+                    "Theme"
+                ],
+                "summary": "delete Theme (not implemented yet)",
+                "description": "",
+                "operationId": "deleteTheme",
+                "parameters": [
+                    {
+                        "name": "id_theme",
+                        "in": "path",
+                        "description": "ID of the theme to delete",
+                        "type": "integer",
+                        "fomrat": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Theme successfully deleted"
+                    },
+                    "404": {
+                        "description": "Theme not found"
+                    }
                 }
             }
         },
-        "Coupon": {
-            "required": [
-                "code",
-                "nbr_QR_code",
-                "nbr_utilisation",
-                "reduction",
-                "date_debut",
-                "date_fin"
-            ],
-            "properties": {
-                "code": {
-                    "type": "string"
-                },
-                "nbr_QR_code": {
-                    "type": "integer"
-                },
-                "nbr_utilisation": {
-                    "type": "integer"
-                },
-                "reduction": {
-                    "type": "integer"
-                },
-                "date_debut": {
-                    "type": "string"
-                },
-                "date_fin": {
-                    "type": "string"
+        "/client/compagne": {
+            "post": {
+                "tags": [
+                    "Compagne"
+                ],
+                "summary": "Create new compagne.",
+                "description": "",
+                "operationId": "addCompagne",
+                "consumes": "application/json",
+                "produces": "application/json",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "request body",
+                        "description": "Request fields",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Compagne"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Compagne"
+                        }
+                    },
+                    "402": {
+                        "description": "Validation errors"
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "Compagne"
+                ],
+                "summary": "get all compagne",
+                "description": "",
+                "operationId": "getAllCompagne",
+                "consumes": "application/json",
+                "produces": "application/json",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Compagne"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/client/signataire-compagne": {
+            "post": {
+                "tags": [
+                    "CompagneSignataire"
+                ],
+                "summary": "relating the signataires to the compagne.",
+                "description": "you must send an array of signataires whom wants to be in the compagne selected every element must contains the nom and prenom of the signataire",
+                "operationId": "addSignatairesToCompagne",
+                "consumes": "application/json",
+                "produces": "application/json",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "request body",
+                        "description": "Request fields",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/CompagneSignataire"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/CompagneSignataire"
+                        }
+                    },
+                    "402": {
+                        "description": "Validation errors"
+                    }
+                }
+            }
+        },
+        "/client/classe": {
+            "post": {
+                "tags": [
+                    "Classe"
+                ],
+                "summary": "create classe for the compagne.",
+                "description": "must passing a signataire which is in the compagne that holds the classe.",
+                "operationId": "addClasse",
+                "consumes": "application/json",
+                "produces": "application/json",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "request body",
+                        "description": "Request fields",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Classe"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Classe"
+                        }
+                    },
+                    "402": {
+                        "description": "Validation errors"
+                    }
+                }
+            }
+        },
+        "/client/commande/{id_commande}": {
+            "get": {
+                "tags": [
+                    "Commande"
+                ],
+                "summary": "Get one commande",
+                "description": "",
+                "operationId": "getOneCommande",
+                "parameters": [
+                    {
+                        "name": "id_commande",
+                        "in": "path",
+                        "description": "ID of the commande to return",
+                        "type": "integer",
+                        "fomrat": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Commande"
+                        }
+                    },
+                    "404": {
+                        "description": "Commande not found"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Commande"
+                ],
+                "summary": "delete Commande (not implemented yet)",
+                "description": "",
+                "operationId": "deleteCommande",
+                "parameters": [
+                    {
+                        "name": "id_commande",
+                        "in": "path",
+                        "description": "ID of the commande to delete",
+                        "type": "integer",
+                        "fomrat": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Commande successfully deleted"
+                    },
+                    "404": {
+                        "description": "Commande not found"
+                    }
+                }
+            }
+        },
+        "/client/commande": {
+            "post": {
+                "tags": [
+                    "Commande"
+                ],
+                "summary": "Create new commande.",
+                "description": "when creating the commande we must set the offre(for existing offres) of the nbr_QR_code(custom commande) request field if there is no one of them so there will be an error",
+                "operationId": "addCommande",
+                "consumes": "application/json",
+                "produces": "application/json",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "request body",
+                        "description": "Request fields",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Commande"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Commande"
+                        }
+                    },
+                    "402": {
+                        "description": "Validation errors"
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "Commande"
+                ],
+                "summary": "get all commandes",
+                "description": "",
+                "operationId": "getAllCommande",
+                "consumes": "application/json",
+                "produces": "application/json",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Commande"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "definitions": {
+            "Etablissement": {
+                "required": [
+                    "nom",
+                    "adresse",
+                    "RC",
+                    "RS",
+                    "NIF",
+                    "NAF",
+                    "NIS",
+                    "url_logo"
+                ],
+                "properties": {
+                    "nom": {
+                        "type": "string"
+                    },
+                    "adresse": {
+                        "type": "string"
+                    },
+                    "RC": {
+                        "type": "string"
+                    },
+                    "RS": {
+                        "type": "string"
+                    },
+                    "NIF": {
+                        "type": "string"
+                    },
+                    "NAF": {
+                        "type": "string"
+                    },
+                    "NIS": {
+                        "type": "string"
+                    }
+                }
+            },
+            "Client": {
+                "required": [
+                    "nom",
+                    "prenom",
+                    "adresse",
+                    "email",
+                    "pseudo",
+                    "mot_de_passe",
+                    "nom_etablissement"
+                ],
+                "properties": {
+                    "nom": {
+                        "type": "string"
+                    },
+                    "adresse": {
+                        "type": "string"
+                    },
+                    "prenom": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string"
+                    },
+                    "mot_de_passe": {
+                        "type": "string"
+                    },
+                    "pseudo": {
+                        "type": "string"
+                    },
+                    "nom_etablissement": {
+                        "type": "string"
+                    }
+                }
+            },
+            "Offre": {
+                "required": [
+                    "nom",
+                    "nbr_QR_code",
+                    "durée"
+                ],
+                "properties": {
+                    "nom": {
+                        "type": "string"
+                    },
+                    "nbr_QR_code": {
+                        "type": "integer"
+                    },
+                    "durée": {
+                        "type": "integer"
+                    }
+                }
+            },
+            "TypePaiment": {
+                "required": [
+                    "nom"
+                ],
+                "properties": {
+                    "nom": {
+                        "type": "string"
+                    }
+                }
+            },
+            "Coupon": {
+                "required": [
+                    "code",
+                    "nbr_QR_code",
+                    "nbr_utilisation",
+                    "reduction",
+                    "date_debut",
+                    "date_fin"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "string"
+                    },
+                    "nbr_QR_code": {
+                        "type": "integer"
+                    },
+                    "nbr_utilisation": {
+                        "type": "integer"
+                    },
+                    "reduction": {
+                        "type": "integer"
+                    },
+                    "date_debut": {
+                        "type": "string"
+                    },
+                    "date_fin": {
+                        "type": "string"
+                    }
+                }
+            },
+            "Signataire": {
+                "required": [
+                    "nom ",
+                    "prenom",
+                    "email",
+                    "adresse",
+                    "mot_de_passe",
+                    "pseudo",
+                    "client"
+                ],
+                "properties": {
+                    "nom": {
+                        "type": "string"
+                    },
+                    "prenom": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string"
+                    },
+                    "adresse": {
+                        "type": "string"
+                    },
+                    "pseudo": {
+                        "type": "string"
+                    },
+                    "mot_de_passe": {
+                        "type": "string"
+                    },
+                    "client": {
+                        "type": "string"
+                    }
+                }
+            },
+            "Theme": {
+                "required": [
+                    "titre"
+                ],
+                "properties": {
+                    "titre": {
+                        "type": "string"
+                    }
+                }
+            },
+            "Compagne": {
+                "required": [
+                    "titre_compagne",
+                    "description",
+                    "titre_theme",
+                    "id_template"
+                ],
+                "properties": {
+                    "titre_compagne": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "titre_theme": {
+                        "type": "string"
+                    },
+                    "id_template": {
+                        "type": "string"
+                    }
+                }
+            },
+            "CompagneSignataire": {
+                "required": [
+                    "titre_compagne",
+                    "signataires"
+                ],
+                "properties": {
+                    "titre_compagne": {
+                        "type": "string"
+                    },
+                    "signataires": {
+                        "type": "string"
+                    }
+                }
+            },
+            "Classe": {
+                "required": [],
+                "properties": {
+                    "date_debut": {
+                        "type": "string"
+                    },
+                    "date_fin": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "titre_compagne": {
+                        "type": "string"
+                    },
+                    "signataire": {
+                        "type": "string"
+                    }
+                }
+            },
+            "Commande": {
+                "required": [
+                    "nbr_QR_code"
+                ],
+                "properties": {
+                    "offre": {
+                        "type": "string"
+                    },
+                    "nbr_QR_code": {
+                        "type": "integer"
+                    }
                 }
             }
         }

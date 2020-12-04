@@ -135,7 +135,7 @@ create_admin();
 
 
 // swagger config
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use("/api-doc", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 sequelize
   // .sync({force : true})

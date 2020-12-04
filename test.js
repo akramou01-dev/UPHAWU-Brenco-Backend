@@ -1,4 +1,6 @@
-[3,22,32,4,5].forEach((element,index)=>{
-    console.log(element)
-    console.log(index)
-})
+const date = new Date();
+console.log(
+  `${date.getFullYear()}-${
+    date.getMonth() < 10 ?  (date.getMonth() + 1) : date.getMonth()+1
+  }-${date.getDay() < 10 ? "0" + date.getDate() : date.getDate()}`
+);

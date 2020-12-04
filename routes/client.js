@@ -105,11 +105,16 @@ router.post(
 router.post(
   "/signataire-compagne",
   [
-    body("signataire")
+    body("signataires")
       .notEmpty()
-      .withMessage("La compagne doit avoir au moin un signataire")
+      .withMessage("Veillez introduire au moin un signataire slvp")
       .isArray({ min: 1 })
       .withMessage("Le tableau ne doit pas étre vide."),
+    body("titre_compagne")
+      .notEmpty()
+      .withMessage(
+        "Veillez introduire le titre de la compagne pour les signataire."
+      ),
   ],
   client_controllers.assign_signataire_compagne
 );
@@ -147,6 +152,7 @@ router.get(
   "/signataire/:id_signataire",
   /**adding isClient middelware, */ client_controllers.signataire
 );
+router.get("/commande/:id_commande", client_controllers.commande);
 
 // GET ALL Routes
 router.get(

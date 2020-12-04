@@ -10,7 +10,7 @@ const CompagneSignataire = sequelize.define(
       comment: "null",
       autoIncrement: true,
     },
-    id_sigantaire: {
+    id_signataire: {
       type: Sequelize.INTEGER.UNSIGNED,
       comment: "null",
       reference: {
