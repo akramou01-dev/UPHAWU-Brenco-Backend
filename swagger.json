@@ -938,7 +938,7 @@
                 }
             }
         },
-        "/admin/theme/{id_theme}": {
+        "/client/theme/{id_theme}": {
             "delete": {
                 "tags": [
                     "Theme"
@@ -1087,6 +1087,27 @@
                         "description": "Validation errors"
                     }
                 }
+            }, "get": {
+                "tags": [
+                    "Classe"
+                ],
+                "summary": "get all compagne",
+                "description": "",
+                "operationId": "getAllCompagne",
+                "consumes": "application/json",
+                "produces": "application/json",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Classe"
+                            }
+                        }
+                    }
+                }
             }
         },
         "/client/commande/{id_commande}": {
@@ -1194,6 +1215,62 @@
                             "type": "array",
                             "items": {
                                 "$ref": "#/definitions/Commande"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/signataire/classe": {
+            "post": {
+                "tags": [
+                    "Classe"
+                ],
+                "summary": "create classe for the compagne.",
+                "description": "",
+                "operationId": "addClasseSignataire",
+                "consumes": "application/json",
+                "produces": "application/json",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "request body",
+                        "description": "Request fields",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/CreateClasseSignataire"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Classe"
+                        }
+                    },
+                    "402": {
+                        "description": "Validation errors"
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "Classe"
+                ],
+                "summary": "get all classes",
+                "description": "",
+                "operationId": "getAllClasse",
+                "consumes": "application/json",
+                "produces": "application/json",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Classe"
                             }
                         }
                     }
@@ -1408,9 +1485,19 @@
                     }
                 }
             },
-            "Classe": {
-                "required": [],
+            "CreateClasseSignataire": {
+                "required": [
+                    "nom",
+                    "date_debut",
+                    "date_fin",
+                    "description",
+                    "titre_compagne",
+                    "signataire"
+                ],
                 "properties": {
+                    "nom": {
+                        "type": "string"
+                    },
                     "date_debut": {
                         "type": "string"
                     },
@@ -1424,6 +1511,32 @@
                         "type": "string"
                     },
                     "signataire": {
+                        "type": "string"
+                    }
+                }
+            },
+            "CréeClasseSignataire": {
+                "required": [
+                    "nom",
+                    "date_debut",
+                    "date_fin",
+                    "description",
+                    "titre_compagne"
+                ],
+                "properties": {
+                    "nom": {
+                        "type": "string"
+                    },
+                    "date_debut": {
+                        "type": "string"
+                    },
+                    "date_fin": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "titre_compagne": {
                         "type": "string"
                     }
                 }

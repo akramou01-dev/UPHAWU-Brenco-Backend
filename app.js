@@ -10,6 +10,7 @@ const app = express();
 // importing routes
 const adminRoutes = require("./routes/admin");
 const clientRoutes = require("./routes/client");
+const signataireRoutes= require("./routes/signataire");
 
 const swaggerUi = require("swagger-ui-express");
 const swaggerDocument = require("./swagger.json");
@@ -118,6 +119,7 @@ app.use((req, res, next) => {
 // using routes middelwares
 app.use("/admin", adminRoutes);
 app.use("/client", clientRoutes);
+app.use("/signataire", signataireRoutes);
 
 //Error middelware
 app.use((error, req, res, next) => {

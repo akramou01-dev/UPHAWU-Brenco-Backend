@@ -10,6 +10,10 @@ const Classe = sequelize.define(
       comment: "null",
       autoIncrement: true,
     },
+    nom: {
+      type: Sequelize.STRING(45),
+      allowNull: false,
+    },
     date_de_creation: {
       type: Sequelize.DATE,
       allowNull: false,
@@ -44,6 +48,14 @@ const Classe = sequelize.define(
       reference: {
         model: "compagne",
         key: "id_compagne",
+      },
+    },
+    id_client: {
+      type: Sequelize.INTEGER.UNSIGNED,
+      comment: "null",
+      reference: {
+        model: "client",
+        key: "id_client",
       },
     },
   },

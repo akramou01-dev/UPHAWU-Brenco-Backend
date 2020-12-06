@@ -9,8 +9,8 @@ const Commande = require("../models/Commande");
 const Offre = require("../models/Offre");
 const Etablissement = require("../models/Etablissement");
 
-const { validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs");
+
 const nodemailer = require("nodemailer");
 const sendgridTransport = require("nodemailer-sendgrid-transport");
 const transporter = nodemailer.createTransport(
@@ -20,6 +20,7 @@ const transporter = nodemailer.createTransport(
     },
   })
 );
+const { validationResult } = require("express-validator");
 const error_handler = (err, next) => {
   if (!err.status_code) {
     err.status_code = 500;
@@ -231,6 +232,7 @@ exports.create_classe = async (req, res, next) => {
   const signataire = req.body.signataire;
   const [nom_signataire, prenom_signataire] = signataire.split(" ");
   const titre_compagne = req.body.titre_compagne;
+  const nom_classe = req.body.nom;
   try {
     // cheking for the validation request fields errors
     const errors = validationResult(req);
@@ -259,24 +261,26 @@ exports.create_classe = async (req, res, next) => {
       where: { titre: titre_compagne },
     });
     if (!compagne) {
-      create_and_throw_error("La compagne n'existe pas.");
+      create_and_throw_error("La compagne n'existe pas.", 404);
     }
     // cheking if the signataire existe and belongs to this client
     const fetched_signataire = await Signataire.findOne({
       where: { nom: nom_signataire, prenom: prenom_signataire },
     });
     if (!fetched_signataire) {
-      create_and_throw_error("Le signataire n'existe pas.");
+      create_and_throw_error("Le signataire n'existe pas.", 404);
     }
     if (fetched_signataire.dataValues.id_client !== id_client) {
       create_and_throw_error(
-        "Le signataire n'appartient pas au client connecter."
+        "Le signataire n'appartient pas au client connecter.",
+        402
       );
     }
     // cheking if the class existe
 
     const classe_existe = await Classe.findOne({
       where: {
+        nom: nom_classe,
         date_debut: date_debut,
         date_fin: date_fin,
         id_signataire: fetched_signataire.dataValues.id_signataire,
@@ -288,6 +292,8 @@ exports.create_classe = async (req, res, next) => {
     }
     // creating the new instance
     const new_classe = new Classe({
+      nom: nom_classe,
+      id_client: id_client,
       date_debut: date_debut,
       date_fin: date_fin,
       id_signataire: fetched_signataire.dataValues.id_signataire,
@@ -360,7 +366,7 @@ exports.create_commande = async (req, res, next) => {
     if (offre) {
       // cheking if the offre existe
       const fetched_offre = await Offre.findOne({ where: { nom: offre } });
-      console.log(fetched_offre)
+      console.log(fetched_offre);
       if (!fetched_offre) {
         is_error = true;
         create_and_throw_error("L'offre n'existe pas.");
@@ -437,6 +443,45 @@ exports.commande = (req, res, next) => {
       };
       res.status(200).json({
         commande: edited_commande,
+      });
+    })
+    .catch((err) => error_handler(err, next));
+};
+
+exports.classes = (req, res, next) => {
+  // extracting the current user_id from the token
+  //   const id_client = req.user_id;
+  const id_client = 1;
+  Classe.findAll({ where: { id_client: id_client} })
+    .then(async (classes) => {
+      if (!classes) {
+        create_and_throw_error(
+          "Une erreur s'est produite lors de la récupération des données.",
+          500
+        );
+      }
+      const new_classes = await Promise.all(
+        await classes.map(async (classe) => {
+          const signataire = await Signataire.findByPk(
+            classe.dataValues.id_signataire
+          );
+          if (!signataire) {
+            create_and_throw_error(
+              `le signataire de la classe nommée ${classe.dataValues.nom} n'existe pas.`,
+              404
+            );
+          }
+          return {
+            ...classe.dataValues,
+            signataire: {
+              nom: signataire.dataValues.nom,
+              prenom: signataire.dataValues.prenom,
+            },
+          };
+        })
+      );
+      res.status(200).json({
+        classes: new_classes,
       });
     })
     .catch((err) => error_handler(err, next));

@@ -122,6 +122,7 @@ router.post(
 router.post(
   "/classe",
   [
+    body("nom").notEmpty().withMessage("Le nom de la classe est manquante."),
     body("date_debut")
       .notEmpty()
       .withMessage("La date du debut de la classe est manquante.")
@@ -170,6 +171,10 @@ router.get(
 router.get(
   "/commande",
   /**adding isClient middelware, */ client_controllers.commandes
+);
+router.get(
+  "/classe",
+  /**adding isClient middelware, */ client_controllers.classes
 );
 
 // PUT Routes
