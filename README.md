@@ -1,2 +1,2 @@
 # UPHAWU-Brenco
-Project professionnel pour le stage chez Brenco
+This is a project done during my Internship at Brenco Engineering & Consulting, which consist on a web application that manage the trainings and certifications offers by the Brenco company, I used Nodejs as a server side framwork with PostgreSql.
